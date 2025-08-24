@@ -1,4 +1,4 @@
-import { ValueDefinition, ClassDefinition, TargetDefinition } from "../controller_property_definition"
+import { ValueDefinition, ClassDefinition, TargetDefinition, OutletDefinition } from "../controller_property_definition"
 import { ControllerDefinition } from "../controller_definition"
 
 import type * as Acorn from "acorn"
@@ -20,6 +20,14 @@ export function parseStaticControllerProperties(controllerDefinition: Controller
       ast.convertArrayExpressionToStringsAndNodes(right).map(([element, elementNode]) =>
         controllerDefinition.addClassDefinition(
           new ClassDefinition(element, right, elementNode, right.loc, "static")
+        )
+      )
+    }
+
+    if (left.name === "outlets") {
+      ast.convertArrayExpressionToStringsAndNodes(right).map(([element, elementNode]) =>
+        controllerDefinition.addOutletDefinition(
+          new OutletDefinition(element, right, elementNode, right.loc, "static")
         )
       )
     }

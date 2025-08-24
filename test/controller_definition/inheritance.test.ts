@@ -12,6 +12,7 @@ const parentCode = dedent`
   export default class extends Controller {
     static targets = ["parentTarget1", "parentTarget2"]
     static classes = ["parentClass1", "parentClass2"]
+    static outlets = ["parentOutlet1", "parentOutlet2"]
     static values = {
       parentValue1: Boolean,
       parentValue2: {
@@ -31,6 +32,7 @@ const childCode = dedent`
   export default class extends ParentController {
     static targets = ["childTarget1", "childTarget2"]
     static classes = ["childClass1", "childClass2"]
+    static outlets = ["childOutlet1", "childOutlet2"]
     static values = {
       childValue1: Array,
       childValue2: {
@@ -158,7 +160,25 @@ describe("inheritance", () => {
     expect(child.classNames).toEqual(["childClass1", "childClass2", "parentClass1", "parentClass2"])
   })
 
-  test.skip("inherits outlets", async () => {
-    expect(true).toBeTruthy()
+  test("inherits outlets", async () => {
+    const parentFile = new SourceFile(project, "parent_controller.js", parentCode)
+    const childFile = new SourceFile(project, "child_controller.js", childCode)
+
+    project.projectFiles.push(parentFile)
+    project.projectFiles.push(childFile)
+
+    await project.initialize()
+
+    const parent = parentFile.controllerDefinitions[0]
+    const child = childFile.controllerDefinitions[0]
+
+    expect(parent).toBeDefined()
+    expect(child).toBeDefined()
+
+    expect(parent.localOutletNames).toEqual(["parentOutlet1", "parentOutlet2"])
+    expect(parent.outletNames).toEqual(["parentOutlet1", "parentOutlet2"])
+
+    expect(child.localOutletNames).toEqual(["childOutlet1", "childOutlet2"])
+    expect(child.outletNames).toEqual(["childOutlet1", "childOutlet2", "parentOutlet1", "parentOutlet2"])
   })
 })

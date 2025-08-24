@@ -132,3 +132,4 @@ export class ValueDefinition extends ControllerPropertyDefinition {
 export class MethodDefinition extends ControllerPropertyDefinition {}
 export class ClassDefinition extends ControllerPropertyDefinition {}
 export class TargetDefinition extends ControllerPropertyDefinition {}
+export class OutletDefinition extends ControllerPropertyDefinition {}

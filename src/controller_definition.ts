@@ -5,7 +5,7 @@ import { identifierForContextKey } from "@hotwired/stimulus-webpack-helpers"
 import { Project } from "./project"
 import { ClassDeclaration } from "./class_declaration"
 import { ParseError } from "./parse_error"
-import { MethodDefinition, ValueDefinition, ClassDefinition, TargetDefinition } from "./controller_property_definition"
+import { MethodDefinition, ValueDefinition, ClassDefinition, TargetDefinition, OutletDefinition } from "./controller_property_definition"
 
 import { dasherize, uncapitalize, camelize } from "./util/string"
 
@@ -23,6 +23,7 @@ export class ControllerDefinition {
   readonly targetDefinitions: Array<TargetDefinition> = []
   readonly classDefinitions: Array<ClassDefinition> = []
   readonly valueDefinitions: Array<ValueDefinition> = []
+  readonly outletDefinitions: Array<OutletDefinition> = []
 
   static controllerPathForIdentifier(identifier: string, fileExtension: string = "js"): string {
     const path = identifier.replace(/--/g, "/").replace(/-/g, "_")
@@ -85,6 +86,26 @@ export class ControllerDefinition {
 
   get localTargetNames(): string[] {
     return this.localTargets.map(target => target.name)
+  }
+
+  // Outlets
+
+  get outlets(): OutletDefinition[] {
+    return this.classDeclaration.ancestors.flatMap(klass =>
+      klass.controllerDefinition?.outletDefinitions || []
+    )
+  }
+
+  get outletNames(): string[] {
+    return this.outlets.map(outlet => outlet.name)
+  }
+
+  get localOutlets(): OutletDefinition[] {
+    return this.outletDefinitions
+  }
+
+  get localOutletNames(): string[] {
+    return this.localOutlets.map(outlet => outlet.name)
   }
 
   // Classes
@@ -259,10 +280,21 @@ export class ControllerDefinition {
     this.valueDefinitions.push(valueDefinition)
   }
 
+  addOutletDefinition(outletDefinition: OutletDefinition): void {
+    if (this.localOutletNames.includes(outletDefinition.name)) {
+      this.errors.push(new ParseError("LINT", `Duplicate definition of Stimulus Outlet "${outletDefinition.name}"`, outletDefinition.elementNode.loc))
+    } else if (this.outletNames.includes(outletDefinition.name)) {
+      this.errors.push(new ParseError("LINT", `Duplicate definition of Stimulus Outlet "${outletDefinition.name}". A parent controller already defines this Outlet.`, outletDefinition.elementNode.loc))
+    }
+
+    this.outletDefinitions.push(outletDefinition)
+  }
+
   get inspect() {
     return {
       guessedIdentifier: this.guessedIdentifier,
       targets: this.targetNames,
+      outlets: this.outletNames,
       values: this.valueDefinitions,
       classes: this.classNames,
       actions: this.actionNames,

@@ -86,3 +86,12 @@ export function ValuesProperty(...properties: ([string[], string[]])): Acorn.Pro
     ObjectExpression(objectProperties)
   )
 }
+
+export function OutletsProperty(...literals: string[]): Acorn.PropertyDefinition {
+  return PropertyDefinition(
+    Identifier("outlets"),
+    ArrayExpression(
+      literals.map(literal => Literal(literal))
+    )
+  )
+}

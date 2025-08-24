@@ -1,4 +1,4 @@
-import { ValueDefinition, ClassDefinition, TargetDefinition } from "../controller_property_definition"
+import { ValueDefinition, ClassDefinition, TargetDefinition, OutletDefinition } from "../controller_property_definition"
 import { ControllerDefinition } from "../controller_definition"
 
 import type * as Acorn from "acorn"
@@ -41,6 +41,11 @@ export function parseDecorator(controllerDefinition: ControllerDefinition | unde
     case "Value":
       parseValueDecorator(controllerDefinition, name, decorator, node)
 
+      break
+
+    case "Outlet":
+    case "Outlets":
+      parseOutletDecorator(controllerDefinition, name, node)
       break
   }
 }
@@ -92,4 +97,12 @@ export function parseValueDecorator(controllerDefinition: ControllerDefinition, 
   const valueDefinition = new ValueDefinition(key, definition, node as any, node as any, node.loc, "decorator")
 
   controllerDefinition.addValueDefinition(valueDefinition)
+}
+
+export function parseOutletDecorator(controllerDefinition: ControllerDefinition, name: string, node: TSESTree.PropertyDefinition): void {
+  controllerDefinition.anyDecorator = true
+
+  const outletDefinition = new OutletDefinition(stripDecoratorSuffix(name, "Outlet"), node as any, node as any, node.loc, "decorator")
+
+  controllerDefinition.addOutletDefinition(outletDefinition)
 }
