@@ -5,55 +5,135 @@
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Stimulus Parser Playground</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" integrity="sha512-GWzVrcGlo0TxTRvz9ttioyYJ+Wwk9Ck0G81D+eO63BaqHaJ3YZX9wuqjwgfcV/MrB2PhaVX9DkYVhbFpStnqpQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script defer data-domain="stimulus-parser.hotwire.io" src="https://plausible.io/js/script.js"></script>
+  <style>
+    /* Ensure Font Awesome icons with 'hidden' class are properly hidden */
+    .hidden {
+      display: none !important;
+    }
+    
+    /* Target Font Awesome SVG elements that should be hidden */
+    .fa-circle-check.hidden,
+    .fa-circle-xmark.hidden,
+    .fa-file.hidden {
+      display: none !important;
+    }
+  </style>
 </head>
 
-<body class="bg-white flex flex-col" data-controller="playground">
+<body class="bg-white flex flex-col h-screen" data-controller="playground" data-playground-prism-editor-outlet="[data-controller='prism-editor']">
   <script type="module" src="/src/entry-client.ts"></script>
 
-  <div class="w-full">
     <nav class="bg-white border px-8 flex h-16 justify-between">
       <div class="flex ml-1 flex-1 items-stretch justify-start">
         <div class="inline-flex items-center px-1 pt-1 text-lg font-medium text-gray-900">Stimulus Parser Playground</div>
       </div>
     </nav>
 
-    <div class="px-8 h-screen">
-      <div class="mx-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="mt-6">
-          <div class="flex justify-between">
-            <div class="text-gray-900 rounded-md py-1.5 text-sm font-medium">Stimulus Controller</div>
+    <div class="px-8 pb-2 mx-2 @container flex h-full min-h-0">
+      <div class="grid grid-cols-1 @md:grid-cols-2 gap-4 flex-1 min-h-0 overflow-hidden"> 
+        <!-- Code Editor Section -->
+        <div class="mt-6 flex flex-col flex-1 min-w-0 min-h-0">
+          <!-- Toolbar -->
+          <div class="@container flex justify-between items-start mb-3">
+            <div class="text-gray-900 text-sm font-medium">Code Editor</div>
+            
+            <div class="flex gap-3 justify-end">
+              <!-- Primary buttons (always visible) -->
+              <select data-action="change->playground#switchTheme" class="text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-md px-3 py-1.5 text-sm font-medium border-0 focus:outline-none">
+                <option value="default">Light</option>
+                <option value="tomorrow">Tomorrow</option>
+                <option value="dark">Dark</option>
+                <option value="okaidia">Okaidia</option>
+                <option value="twilight">Twilight</option>
+                <option value="coy">Coy</option>
+                <option value="funky">Funky</option>
+                <option value="solarizedlight">Solarized Light</option>
+              </select>
 
-            <div class="flex gap-3">
-              <button data-action="click->playground#share" id="copy-share-url" class="text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-md px-3 py-1.5 text-sm font-medium">
+              <!-- Secondary buttons (hidden on small containers) -->
+              <button data-action="click->playground#share" id="copy-share-url" class="@max-lg:hidden text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-md px-3 py-1.5 text-sm font-medium">
                 <i class="fas fa-copy"></i>
                 <i class="fas fa-circle-check text-green-600 hidden ease-in duration-300"></i>
                 <i class="fas fa-circle-xmark text-red-600 hidden ease-in duration-300"></i>
-
                 <span class="ml-1">Copy Share URL</span>
               </button>
 
-              <button data-action="click->playground#insert click->playground#analyze" id="example" class="text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-md px-3 py-1.5 text-sm font-medium">
+              <button data-action="click->playground#insertExamples" id="examples" class="@max-lg:hidden text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-md px-3 py-1.5 text-sm font-medium">
                 <i class="fas fa-file w-4"></i>
                 <i class="fas fa-circle-check w-4 text-green-600 hidden ease-in duration-300"></i>
-
-                <span class="ml-1">Example</span>
+                <span class="ml-1">Add Examples</span>
               </button>
+
+              <!-- Dropdown menu (visible on small containers) -->
+              <div class="@lg:hidden relative group">
+                <button class="text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-md px-3 py-1.5 text-sm font-medium">
+                  <i class="fas fa-ellipsis-h"></i>
+                </button>
+                <div class="hidden group-hover:block absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-10">
+                  <div class="py-1">
+                    <button data-action="click->playground#share" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      <i class="fas fa-copy mr-2"></i>Copy Share URL
+                    </button>
+                    <button data-action="click->playground#insertExamples" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      <i class="fas fa-file mr-2"></i>Add Examples
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="mt-2">
-            <textarea data-playground-target="input" data-action="input->playground#analyze" id="input" class="p-3 bg-gray-50 font-mono w-full text-black rounded-md border border-gray-300 text-sm h-[30vh] md:h-[90vh]" placeholder="Paste Stimulus Controller here"></textarea>
+          <!-- Editor Container -->
+          <div class="flex-1 border border-gray-300 rounded-lg overflow-hidden bg-white flex">
+            <!-- File Explorer Sidebar -->
+            <div class="w-64 border-r border-gray-200 bg-gray-50">
+              <div class="p-3 border-b border-gray-200 bg-gray-100 flex justify-between items-center">
+                <div class="text-xs font-medium text-gray-700 uppercase tracking-wide">Files</div>
+                <button data-action="click->playground#addFile" class="text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded p-1 text-xs" title="Add File">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+              <div data-playground-target="filesContainer" class="p-2">
+                <div class="text-sm text-gray-500 italic text-center py-8" data-playground-target="emptyState">
+                  No files yet<br>
+                  <button data-action="click->playground#addFile" class="text-blue-600 hover:underline mt-1">Create your first file</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Editor Area -->
+            <div class="flex-1 flex flex-col min-w-0">
+              <!-- Editor -->
+              <div class="flex-1 relative" data-controller="prism-editor">
+                <div class="absolute inset-0 flex items-center justify-center text-gray-500" data-playground-target="noFileState">
+                  <div class="text-center">
+                    <i class="fas fa-file-code text-4xl mb-2 opacity-50"></i>
+                    <div class="text-sm">Select a file to start editing</div>
+                  </div>
+                </div>
+                <textarea 
+                  data-playground-target="editor"
+                  data-prism-editor-target="textarea"
+                  data-action="input->playground#updateCurrentFile"
+                  class="w-full h-full p-4 font-mono text-sm resize-none border-0 focus:outline-none bg-white"
+                  placeholder="Start typing your Stimulus controller..."
+                  style="display: none;"
+                ></textarea>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="mt-6" data-contoller="output">
-          <div class="flex justify-between">
-            <div class="text-gray-900 rounded-md px-0 py-1.5 text-sm font-medium">Parse Result</div>
+        <!-- Parse Result Section -->
+        <div class="mt-6 flex flex-col flex-1 min-w-0 min-h-0">
+          <!-- Toolbar -->
+          <div class="@container flex justify-between items-start mb-3">
+            <div class="text-gray-900 text-sm font-medium">Parse Result</div>
 
-            <div class="flex gap-3">
+            <div class="flex gap-3 justify-end">
               <button data-playground-target="viewerButton" data-viewer="simple" data-action="click->playground#selectViewer" class="text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-md px-3 py-1.5 text-sm font-medium data-[active=true]:bg-blue-600 data-[active=true]:hover:bg-blue-700 data-[active=true]:text-white" data-active="true">
                 <i class="fas fa-list"></i>
                 <span class="ml-1">Simple</span>
@@ -66,16 +146,17 @@
             </div>
           </div>
 
-          <div class="mt-2">
-            <json-viewer data-playground-target="simpleViewer" class="py-0 px-5 rounded-lg font-mono h-[50vh] md:h-[90vh] overflow-scroll"></json-viewer>
-            <json-viewer data-playground-target="fullViewer" class="hidden py-0 px-5 rounded-lg font-mono h-[50vh] md:h-[90vh] overflow-scroll"></json-viewer>
+          <!-- Parse Result Container -->
+          <div class="flex-1 border border-gray-300 rounded-lg overflow-hidden bg-white flex flex-col">
+            <json-viewer data-playground-target="simpleViewer" class="py-0 px-5 font-mono flex-1 overflow-auto"></json-viewer>
+            <json-viewer data-playground-target="fullViewer" class="hidden py-0 px-5 font-mono flex-1 overflow-auto"></json-viewer>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <footer class="sticky bottom-0 bg-white">
+  <footer class="bg-white">
     <div class="w-full pt-3 pb-3 px-6 border-t border-gray-200">
       <div class="flex flex-row justify-between items-center px-3 text-left">
         <div class="flex justify-center text-sm text-black">
@@ -89,5 +170,36 @@
       </div>
     </div>
   </footer>
+
+  <!-- Templates -->
+  <template id="file-item-template">
+    <div class="flex items-center group px-2 py-1.5 rounded cursor-pointer transition-colors">
+      <div class="flex items-center flex-1 min-w-0">
+        <i class="fas fa-file-code text-xs w-4 mr-2"></i>
+        <input 
+          type="text" 
+          data-file-id=""
+          size="1"
+          data-action="mousedown->playground#stop focus->playground#restoreFullFilename input->playground#resizeFilename blur->playground#renameFile keydown->playground#handleRenameKeydown"
+          class="bg-transparent border-0 text-xs focus:outline-none focus:bg-white focus:border focus:border-blue-300 focus:rounded px-0 py-0.5 flex-1 min-w-0"
+        />
+      </div>
+      <button 
+        data-file-id=""
+        data-action="mousedown->playground#stop click->playground#removeFile:stop"
+        class="p-1 hover:bg-red-100 text-red-600 rounded text-xs opacity-0 group-hover:opacity-100 flex-shrink-0"
+        title="Delete file"
+      >
+        <i class="fas fa-trash"></i>
+      </button>
+    </div>
+  </template>
+
+  <template id="controller-c-template">
+    <div data-controller="c" data-c-label-value="Child C">
+      <span data-c-target="text">Controller C</span>
+      <button data-action="click->c#activate">Activate C</button>
+    </div>
+  </template>
 </body>
 </html>

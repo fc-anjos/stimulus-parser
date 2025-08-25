@@ -71,11 +71,5 @@ describe("ControllerDefinition", () => {
     expect((await controllerDefinitionFor(project, "some_underscored.mts", null)).type).toEqual("typescript")
     expect((await controllerDefinitionFor(project, "some_underscored.tsx", null)).type).toEqual("typescript")
   })
-
-  test("inspect includes outlets", async () => {
-    const controller = await controllerDefinitionFor(project, "some_controller.js")
-    const inspect = controller.inspect as any
-
-    expect(Array.isArray(inspect.outlets)).toBeTruthy()
-  })
 })
+

@@ -31,13 +31,14 @@ export class ApplicationFile {
   get localApplicationConstant() {
     const importName = this.applicationImport?.localName
 
-    if (!importName) return
+    if (!importName) {
+      return
+    }
 
     let localName = null
 
     walk(this.sourceFile.ast, {
       VariableDeclaration: (node: Acorn.VariableDeclaration) => {
-
         node.declarations.forEach(declarator => {
           if (declarator.id?.type !== "Identifier") return
           if (declarator.init?.type !== "CallExpression") return
@@ -48,8 +49,12 @@ export class ApplicationFile {
           if (call.callee.object.type !== "Identifier") return
           if (call.callee.property.type !== "Identifier") return
 
-          if (call.callee.object.name !== importName) return
-          if (call.callee.property.name !== "start") return
+          if (call.callee.object.name !== importName) {
+            return
+          }
+          if (call.callee.property.name !== "start") {
+            return
+          }
 
           localName = declarator.id.name
         })
@@ -60,9 +65,13 @@ export class ApplicationFile {
   }
 
   get exportDeclaration(): ExportDeclaration | undefined {
-    if (!this.localApplicationConstant) return
+    if (!this.localApplicationConstant) {
+      return
+    }
 
-    return this.sourceFile.findExport(this.localApplicationConstant)
+    const exportDecl = this.sourceFile.findExport(this.localApplicationConstant)
+    
+    return exportDecl
   }
 
   get exportedApplicationConstant() {

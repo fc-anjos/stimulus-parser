@@ -7,6 +7,7 @@ import { ExportDeclaration } from "./export_declaration"
 import { ImportDeclaration } from "./import_declaration"
 import { Parser } from "./parser"
 import { SourceFile } from "./source_file"
+import { OutletMapper } from "./outlet_resolver"
 
 import { analyzeAll, analyzePackage } from "./packages"
 import { resolvePathWhenFileExists, nestedFolderSort } from "./util/fs"
@@ -14,6 +15,8 @@ import { calculateControllerRoots } from "./util/project"
 
 import type { NodeModule } from "./node_module"
 import type { RegisteredController } from "./registered_controller"
+import type { ControllerInterface } from "./controller_property_definition"
+import type { OutletMapping } from "./outlet_resolver"
 
 export class Project {
   readonly projectPath: string
@@ -29,6 +32,8 @@ export class Project {
   public parser: Parser = new Parser(this)
   public applicationFile?: ApplicationFile
   public controllersIndexFiles: ControllersIndexFile[] = []
+
+
 
   constructor(projectPath: string) {
     this.projectPath = projectPath
@@ -65,6 +70,16 @@ export class Project {
 
     return resolvedPath ? this.relativePath(resolvedPath) : null
   }
+
+  controllerDefinitionForIdentifier(identifier: string): ControllerDefinition | undefined {
+    const matches = this.registeredControllers.filter(rc => rc.identifier === identifier)
+    if (matches.length === 0) return undefined
+    return matches[matches.length - 1].controllerDefinition
+  }
+
+
+
+
 
   controllerRootForPath(filePath: string) {
     const relativePath = this.relativePath(filePath)
@@ -125,6 +140,8 @@ export class Project {
     return this.controllersIndexFiles.flatMap(file => file.registeredControllers)
   }
 
+  
+
   get referencedNodeModulesLazy() {
     return this.projectFiles
       .flatMap(file => file.importDeclarations)
@@ -162,7 +179,18 @@ export class Project {
     await this.analyzeProjectFiles()
     await this.analyzeStimulusApplicationFile()
     await this.analyzeStimulusControllersIndexFile()
+    await this.mapAllControllerOutlets()
   }
+
+  // ===== OUTLET COORDINATION =====
+  async mapAllControllerOutlets(): Promise<void> {
+    const allControllers = this.allControllerDefinitions
+    const mapper = new OutletMapper()
+    const allMappings = await mapper.mapOutlets(allControllers)
+    
+    allMappings.forEach((mappings, controller) => controller.setMappedOutlets(mappings))
+  }
+  // ===== END OUTLET COORDINATION =====
 
   async reset() {
     this.projectFiles = []
@@ -269,6 +297,8 @@ export class Project {
     })
   }
 
+  
+
   private async getProjectFilePaths(): Promise<string[]> {
     return await glob(`${this.projectPath}/**/*.{${this.extensionsGlob}}`, {
       ignore: `${this.projectPath}/**/node_modules/**/*`,
@@ -277,5 +307,25 @@ export class Project {
 
   get extensionsGlob() {
     return Project.javascriptExtensions.concat(Project.typescriptExtensions).join(",")
+  }
+
+  private buildInspectionResult(controllerMapper: (controllerDef: ControllerDefinition) => ControllerInterface) {
+    return {
+      sourceFiles: this.projectFiles.map(sf => ({
+        ...sf.inspect,
+        controllerDefinitions: sf.controllerDefinitions.map(controllerMapper),
+      }))
+    }
+  }
+
+  inspect() {
+    return this.buildInspectionResult(cd => cd.inspect)
+  }
+
+  inspectResolved() {
+    return this.buildInspectionResult(cd => ({
+      ...cd.inspect,
+      outlets: cd.getMappedOutlets()
+    }))
   }
 }

@@ -181,4 +181,24 @@ describe("inheritance", () => {
     expect(child.localOutletNames).toEqual(["childOutlet1", "childOutlet2"])
     expect(child.outletNames).toEqual(["childOutlet1", "childOutlet2", "parentOutlet1", "parentOutlet2"])
   })
+
+  test("outlets getter returns definitions aggregated across ancestors", async () => {
+    const parentFile = new SourceFile(project, "parent_controller.js", parentCode)
+    const childFile = new SourceFile(project, "child_controller.js", childCode)
+
+    project.projectFiles.push(parentFile)
+    project.projectFiles.push(childFile)
+
+    await project.initialize()
+
+    const parent = parentFile.controllerDefinitions[0]
+    const child = childFile.controllerDefinitions[0]
+
+    expect(parent.outlets.map(o => o.name)).toEqual(["parentOutlet1", "parentOutlet2"]) 
+    expect(child.outlets.map(o => o.name)).toEqual(["childOutlet1", "childOutlet2", "parentOutlet1", "parentOutlet2"]) 
+
+    // Ensure these are plain definitions (no resolved controller data attached)
+    const anyOutlet = child.outlets[0] as any
+    expect("controller" in anyOutlet).toBeFalsy()
+  })
 })

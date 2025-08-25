@@ -3,7 +3,9 @@ import { findPropertyInProperties } from "./util/ast"
 import type * as Acorn  from "acorn"
 
 import type { ValueDefinitionValue, ValueDefinition as ValueDefinitionType } from "./types"
+import type { ControllerDefinition } from "./controller_definition"
 import type { TSESTree } from "@typescript-eslint/typescript-estree"
+import type { Project } from "./project"
 
 // TODO: ArrayExpression and ObjectExpression shoudl probably be PropertyDefinition as well
 // AssignmentExpression | PropertyDefinition
@@ -11,6 +13,20 @@ import type { TSESTree } from "@typescript-eslint/typescript-estree"
 // maybe the ControllerPropertyDefinition superclass should be Acorn.Node, but the subclasses themselves can narrow down the type
 type Node = Acorn.MethodDefinition | Acorn.PropertyDefinition | Acorn.ArrayExpression | Acorn.ObjectExpression
 type ElementNode = Acorn.Property | Acorn.PropertyDefinition | Acorn.ArrayExpression | Acorn.Literal | Acorn.Identifier | Acorn.MethodDefinition
+
+// Controller inspection data interface - used for analyzing controller structure
+export interface ControllerInterface {
+  guessedIdentifier: string
+  targets: string[]
+  outlets: OutletDefinition[]
+  values: ValueDefinition[]
+  classes: string[]
+  actions: string[]
+}
+
+
+
+
 
 export abstract class ControllerPropertyDefinition {
   public readonly name: string
@@ -133,3 +149,5 @@ export class MethodDefinition extends ControllerPropertyDefinition {}
 export class ClassDefinition extends ControllerPropertyDefinition {}
 export class TargetDefinition extends ControllerPropertyDefinition {}
 export class OutletDefinition extends ControllerPropertyDefinition {}
+
+

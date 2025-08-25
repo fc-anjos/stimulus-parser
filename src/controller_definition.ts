@@ -6,10 +6,13 @@ import { Project } from "./project"
 import { ClassDeclaration } from "./class_declaration"
 import { ParseError } from "./parse_error"
 import { MethodDefinition, ValueDefinition, ClassDefinition, TargetDefinition, OutletDefinition } from "./controller_property_definition"
+import { OutletMapper } from "./outlet_resolver"
 
 import { dasherize, uncapitalize, camelize } from "./util/string"
 
 import type { RegisteredController } from "./registered_controller"
+import type { ControllerInterface } from "./controller_property_definition"
+import type { OutletMapping } from "./outlet_resolver"
 
 export class ControllerDefinition {
   readonly project: Project
@@ -24,6 +27,8 @@ export class ControllerDefinition {
   readonly classDefinitions: Array<ClassDefinition> = []
   readonly valueDefinitions: Array<ValueDefinition> = []
   readonly outletDefinitions: Array<OutletDefinition> = []
+
+  private _mappedOutlets?: OutletMapping[]
 
   static controllerPathForIdentifier(identifier: string, fileExtension: string = "js"): string {
     const path = identifier.replace(/--/g, "/").replace(/-/g, "_")
@@ -96,6 +101,10 @@ export class ControllerDefinition {
     )
   }
 
+  get mappedOutlets(): OutletMapping[] {
+    return this._mappedOutlets || []
+  }
+
   get outletNames(): string[] {
     return this.outlets.map(outlet => outlet.name)
   }
@@ -106,6 +115,14 @@ export class ControllerDefinition {
 
   get localOutletNames(): string[] {
     return this.localOutlets.map(outlet => outlet.name)
+  }
+
+  setMappedOutlets(mappings: OutletMapping[]): void {
+    this._mappedOutlets = mappings
+  }
+
+  getMappedOutlets(): OutletMapping[] {
+    return this._mappedOutlets!
   }
 
   // Classes
@@ -290,11 +307,11 @@ export class ControllerDefinition {
     this.outletDefinitions.push(outletDefinition)
   }
 
-  get inspect() {
+  get inspect(): ControllerInterface {
     return {
       guessedIdentifier: this.guessedIdentifier,
       targets: this.targetNames,
-      outlets: this.outletNames,
+      outlets: this.outletDefinitions,
       values: this.valueDefinitions,
       classes: this.classNames,
       actions: this.actionNames,

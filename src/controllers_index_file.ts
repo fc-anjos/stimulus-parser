@@ -1,6 +1,7 @@
 import path from "path"
 
 import { RegisteredController } from "./registered_controller"
+import { ParseError } from "./parse_error"
 
 import { glob } from "glob"
 import { walk } from "./util/walk"
@@ -78,7 +79,7 @@ export class ControllersIndexFile {
 
           this.project._controllerRoots.add(this.project.relativePath(path.dirname(this.sourceFile.path)))
 
-          this.registeredControllers.push(new RegisteredController(identifier, controller, "register"))
+          this.addRegisteredController(identifier, controller, "register", node.loc)
         }
       }
     })
@@ -241,13 +242,21 @@ export class ControllersIndexFile {
     const controllerDefinitions = sourceFiles.flatMap(file => file.defaultExportControllerDefinition || [])
 
     controllerDefinitions.forEach(controller => {
-      const registeredController = new RegisteredController(
-        controller.identifierForControllerRoot(controllerRoot),
-        controller,
-        type
-      )
-
-      this.registeredControllers.push(registeredController)
+      const identifier = controller.identifierForControllerRoot(controllerRoot)
+      this.addRegisteredController(identifier, controller, type)
     })
+  }
+
+  private addRegisteredController(identifier: string, controller: any, loadMode: ControllerLoadMode, loc?: any) {
+    const hasDuplicate = this.registeredControllers.some(rc => rc.identifier === identifier)
+    if (hasDuplicate) {
+      const message = `Duplicate registration of Stimulus Controller "${identifier}"`
+      const alreadyReported = controller.errors.some((e: ParseError) => e.message === message)
+      if (!alreadyReported) {
+        controller.errors.push(new ParseError("LINT", message, loc))
+      }
+    }
+
+    this.registeredControllers.push(new RegisteredController(identifier, controller, loadMode))
   }
 }
