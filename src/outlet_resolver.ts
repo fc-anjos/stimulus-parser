@@ -1,37 +1,44 @@
 import type { ControllerDefinition } from "./controller_definition"
 import type { OutletDefinition, ControllerInterface } from "./controller_property_definition"
+import type { Project } from "./project"
+
+interface ControllerWithMappedOutlets extends Omit<ControllerInterface, 'outlets'> {
+  outlets: OutletMapping[]
+}
 
 export type OutletMapping = OutletDefinition & {
-  controller?: ControllerInterface & {
-    outlets: OutletMapping[]
-  }
+  controller?: ControllerWithMappedOutlets
 }
 
 export class OutletMapper {
+  private project: Project
+
+  constructor(project: Project) {
+    this.project = project
+  }
+
   private async mapOutlet(
     outlet: OutletDefinition,
-    availableControllers: ControllerDefinition[],
     mappingPath: string[]
   ): Promise<OutletMapping> {
-    const resolvedController = availableControllers.find(c => c.guessedIdentifier === outlet.name)
+    const resolvedController = this.project.controllerDefinitionForIdentifier(outlet.name)
     if (!resolvedController || mappingPath.includes(resolvedController.guessedIdentifier)) {
       return { ...outlet, controller: undefined }
     }
 
-    const childOutlets = await this.mapOutletsForController(resolvedController, availableControllers, mappingPath)
+    const childOutlets = await this.mapOutletsForController(resolvedController, mappingPath)
 
     return { 
       ...outlet, 
       controller: { 
         ...resolvedController.inspect,
         outlets: childOutlets
-      } 
+      } as ControllerWithMappedOutlets
     }
   }
 
   async mapOutletsForController(
     controllerDef: ControllerDefinition, 
-    availableControllers: ControllerDefinition[],
     path: string[] = []
   ): Promise<OutletMapping[]> {
     const currentId = controllerDef.guessedIdentifier
@@ -47,7 +54,7 @@ export class OutletMapper {
 
     return Promise.all(controllerDef.outletNames.map(name => {
       const outlet = controllerDef.outlets.find(o => o.name === name)!
-      return this.mapOutlet(outlet, availableControllers, mappingPath)
+      return this.mapOutlet(outlet, mappingPath)
     }))
   }
 
@@ -55,7 +62,7 @@ export class OutletMapper {
     const mappings = new Map<ControllerDefinition, OutletMapping[]>()
     
     for (const controllerDef of controllerDefinitions) {
-      const mappedOutlets = await this.mapOutletsForController(controllerDef, controllerDefinitions)
+      const mappedOutlets = await this.mapOutletsForController(controllerDef)
       mappings.set(controllerDef, mappedOutlets)
     }
     

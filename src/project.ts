@@ -183,7 +183,7 @@ export class Project {
 
   async mapAllControllerOutlets(): Promise<void> {
     const allControllers = this.allControllerDefinitions
-    const mapper = new OutletMapper()
+    const mapper = new OutletMapper(this)
     const allMappings = await mapper.mapOutlets(allControllers)
     
     allMappings.forEach((mappings, controller) => controller.mappedOutlets = mappings)

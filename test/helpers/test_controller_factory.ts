@@ -49,7 +49,7 @@ function createValueDefinition(name: string, valueDef: any): ValueDefinition {
   } as ValueDefinition
 }
 
-type StubControllerInput = {
+type TestControllerInput = {
   guessedIdentifier: string
   outlets?: string[]
   targets?: string[]
@@ -64,14 +64,14 @@ type StubControllerInput = {
   }
 }
 
-export function stubControllerDefinition(
-  input: StubControllerInput
+export function createTestController(
+  input: TestControllerInput
 ): ControllerDefinition {
   return new (class extends ControllerDefinition {
     private _guessedIdentifier: string
-    private _config: StubControllerInput
+    private _config: TestControllerInput
 
-    constructor(input: StubControllerInput) {
+    constructor(input: TestControllerInput) {
       const klass: any = { sourceFile: { path: "" } }
       super({} as any, klass)
 
@@ -121,5 +121,5 @@ export function stubControllerDefinition(
         actions: this.actionNames
       }
     }
-      })(input)
+  })(input)
 }
