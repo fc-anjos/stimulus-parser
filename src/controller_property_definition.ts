@@ -14,7 +14,6 @@ import type { Project } from "./project"
 type Node = Acorn.MethodDefinition | Acorn.PropertyDefinition | Acorn.ArrayExpression | Acorn.ObjectExpression
 type ElementNode = Acorn.Property | Acorn.PropertyDefinition | Acorn.ArrayExpression | Acorn.Literal | Acorn.Identifier | Acorn.MethodDefinition
 
-// Controller inspection data interface - used for analyzing controller structure
 export interface ControllerInterface {
   guessedIdentifier: string
   targets: string[]

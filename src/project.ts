@@ -186,7 +186,7 @@ export class Project {
     const mapper = new OutletMapper()
     const allMappings = await mapper.mapOutlets(allControllers)
     
-    allMappings.forEach((mappings, controller) => controller.setMappedOutlets(mappings))
+    allMappings.forEach((mappings, controller) => controller.mappedOutlets = mappings)
   }
 
   async reset() {
@@ -322,7 +322,7 @@ export class Project {
   inspectResolved() {
     return this.buildInspectionResult(cd => ({
       ...cd.inspect,
-      outlets: cd.getMappedOutlets()
+      outlets: cd.mappedOutlets
     }))
   }
 }

@@ -6,7 +6,6 @@ import { Project } from "./project"
 import { ClassDeclaration } from "./class_declaration"
 import { ParseError } from "./parse_error"
 import { MethodDefinition, ValueDefinition, ClassDefinition, TargetDefinition, OutletDefinition } from "./controller_property_definition"
-import { OutletMapper } from "./outlet_resolver"
 
 import { dasherize, uncapitalize, camelize } from "./util/string"
 
@@ -118,12 +117,8 @@ export class ControllerDefinition {
     return this.localOutlets.map(outlet => outlet.name)
   }
 
-  setMappedOutlets(mappings: OutletMapping[]): void {
+  set mappedOutlets(mappings: OutletMapping[]) {
     this._mappedOutlets = mappings
-  }
-
-  getMappedOutlets(): OutletMapping[] {
-    return this._mappedOutlets!
   }
 
   // Classes
