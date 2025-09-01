@@ -103,7 +103,6 @@ export class Project {
     return this.projectFiles.flatMap(file => file.controllerDefinitions)
   }
 
-  // TODO: this should be coming from the nodeModules
   get allControllerDefinitions(): ControllerDefinition[] {
     return this.allSourceFiles.flatMap(file => file.controllerDefinitions)
   }
@@ -182,7 +181,6 @@ export class Project {
     await this.mapAllControllerOutlets()
   }
 
-  // ===== OUTLET COORDINATION =====
   async mapAllControllerOutlets(): Promise<void> {
     const allControllers = this.allControllerDefinitions
     const mapper = new OutletMapper()
@@ -190,7 +188,6 @@ export class Project {
     
     allMappings.forEach((mappings, controller) => controller.setMappedOutlets(mappings))
   }
-  // ===== END OUTLET COORDINATION =====
 
   async reset() {
     this.projectFiles = []

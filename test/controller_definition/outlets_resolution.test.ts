@@ -55,9 +55,8 @@ describe("ControllerDefinition → outlets mapping", () => {
     expect(nonExistentOutlet!.name).toBe("non-existent-controller")
     expect(nonExistentOutlet!.controller).toBeUndefined()
     
-    // Verify that other outlets still resolve correctly
     const otherOutlet = hostResolved.find(o => o.name === "other-controller")
-    expect(otherOutlet).toBeUndefined() // Since it wasn't declared as an outlet
+    expect(otherOutlet).toBeUndefined()
   })
 
   test("duplicate outlet declarations preserve order in flattened list", async () => {
@@ -118,7 +117,7 @@ test("controller resolution independent of pool membership (playground scenario)
     const controllerA = stubControllerDefinition({ guessedIdentifier: "a", outlets: ["b"] })
     const controllerB = stubControllerDefinition({ guessedIdentifier: "b", outlets: ["c"] })
     const controllerC = stubControllerDefinition({ guessedIdentifier: "c", outlets: ["d"] })
-    const controllerD = stubControllerDefinition({ guessedIdentifier: "d", outlets: ["b"] }) // cycle back to B
+    const controllerD = stubControllerDefinition({ guessedIdentifier: "d", outlets: ["b"] })
 
     const resolver = new OutletMapper()
 
@@ -142,7 +141,7 @@ test("controller resolution independent of pool membership (playground scenario)
   test("outlets resolve correctly with contextual circular detection", async () => {
     const controllerA = stubControllerDefinition({ guessedIdentifier: "a", outlets: ["b"] })
     const controllerB = stubControllerDefinition({ guessedIdentifier: "b", outlets: ["c"] })
-    const controllerC = stubControllerDefinition({ guessedIdentifier: "c", outlets: ["a"] }) // completes cycle back to A
+    const controllerC = stubControllerDefinition({ guessedIdentifier: "c", outlets: ["a"] })
 
     const resolver = new OutletMapper()
 

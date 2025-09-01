@@ -1,4 +1,3 @@
-// Example: Controller A - references Controller B (creates circular reference)
 import { Controller } from "@hotwired/stimulus"
 
 export class ControllerA extends Controller {

@@ -1,4 +1,3 @@
-// Example: Goodbye controller with values
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {

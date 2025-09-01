@@ -2,7 +2,6 @@ import { Controller } from "@hotwired/stimulus"
 import Prism from 'prismjs'
 import 'prismjs/components/prism-javascript'
 
-// Don't import themes here - we'll load them dynamically
 
 export default class extends Controller {
   static targets = ["textarea"]
@@ -29,7 +28,6 @@ export default class extends Controller {
   setupHighlighting() {
     if (!this.hasTextareaTarget) return
 
-    // Create a container for the highlighted code
     this.highlightContainer = document.createElement('div')
     this.highlightContainer.className = 'prism-highlight absolute inset-0 pointer-events-none'
     this.highlightContainer.style.cssText = `
@@ -51,14 +49,12 @@ export default class extends Controller {
       margin: 0;
     `
 
-    // Make textarea container relative for absolute positioning
     const container = this.textareaTarget.parentElement
     if (container) {
       container.style.position = 'relative'
       container.appendChild(this.highlightContainer)
     }
 
-    // Style the textarea to show through the highlight
     this.textareaTarget.style.cssText += `
       background: transparent !important;
       color: transparent !important;
@@ -73,14 +69,12 @@ export default class extends Controller {
       overflow: auto !important;
     `
 
-    // Ensure long lines do not wrap so horizontal scrolling is possible
     this.textareaTarget.setAttribute('wrap', 'off')
   }
 
   setupEventListeners() {
     if (!this.hasTextareaTarget) return
 
-    // Debounced highlighting
     let highlightTimeout = null
 
     const debouncedHighlight = () => {
@@ -92,13 +86,11 @@ export default class extends Controller {
       }, 100)
     }
 
-    // Listen for input changes
     this.textareaTarget.addEventListener('input', () => {
       this.contentValue = this.textareaTarget.value
       debouncedHighlight()
     })
 
-    // Listen for scroll events to sync highlighting
     this.textareaTarget.addEventListener('scroll', () => {
       if (this.highlightPre) {
         const x = this.textareaTarget.scrollLeft || 0
@@ -107,7 +99,6 @@ export default class extends Controller {
       }
     })
 
-    // Listen for resize events
     const resizeObserver = new ResizeObserver(() => {
       this.syncDimensions()
     })
@@ -125,10 +116,8 @@ export default class extends Controller {
     }
 
     try {
-      // Use Prism.js to highlight the code
       const highlighted = Prism.highlight(content, Prism.languages.javascript, 'javascript')
       
-      // Apply the highlighted HTML - ensure no wrapping and let <pre>/<code> size to content width
       this.highlightContainer.innerHTML = `<pre class="language-javascript" style="margin: 0; background: transparent; padding: 0; border: none; box-shadow: none; white-space: pre; display: inline-block; will-change: transform;"><code style="display: inline-block; white-space: pre;">${highlighted}</code></pre>`
       this.highlightPre = this.highlightContainer.querySelector('pre')
       if (this.highlightPre) {
@@ -140,7 +129,6 @@ export default class extends Controller {
       this.syncDimensions()
     } catch (error) {
       console.warn('Prism highlighting failed:', error)
-      // Fallback: show plain text
       this.highlightContainer.innerHTML = `<pre style="margin: 0; white-space: pre-wrap; padding: 0; border: none; box-shadow: none;">${this.escapeHtml(content)}</pre>`
     }
   }
@@ -148,7 +136,6 @@ export default class extends Controller {
   syncDimensions() {
     if (!this.hasTextareaTarget || !this.highlightContainer) return
 
-    // Sync the highlight container dimensions with the textarea
     this.highlightContainer.style.width = `${this.textareaTarget.offsetWidth}px`
     this.highlightContainer.style.height = `${this.textareaTarget.offsetHeight}px`
     this.highlightContainer.style.padding = window.getComputedStyle(this.textareaTarget).padding
@@ -163,7 +150,6 @@ export default class extends Controller {
     return div.innerHTML
   }
 
-  // Public methods for external access
   getValue() {
     return this.hasTextareaTarget ? this.textareaTarget.value : ''
   }
@@ -182,17 +168,14 @@ export default class extends Controller {
     }
   }
 
-  // Load theme CSS dynamically
   loadTheme(theme) {
     console.log('Loading theme:', theme)
     
-    // Remove existing theme link if it exists
     const existingLink = document.querySelector('link[data-prism-theme]')
     if (existingLink) {
       existingLink.remove()
     }
 
-    // Add new theme CSS
     let themePath, backgroundColor, textColor
     switch (theme) {
       case 'tomorrow':
@@ -247,14 +230,11 @@ export default class extends Controller {
     link.setAttribute('data-prism-theme', theme)
     document.head.appendChild(link)
     
-    // Apply background and text colors only to the highlight container
-    // The highlight container covers the entire editor area and provides the background
     if (this.highlightContainer) {
       this.highlightContainer.style.backgroundColor = backgroundColor
       this.highlightContainer.style.color = textColor
     }
     
-    // Update textarea caret color based on theme (textarea remains transparent)
     if (this.hasTextareaTarget) {
       this.textareaTarget.style.caretColor = textColor
     }
@@ -262,14 +242,12 @@ export default class extends Controller {
     console.log('Theme loaded:', theme, 'from', themePath, 'with background:', backgroundColor)
   }
 
-  // Simple theme switching
   switchTheme(theme) {
     console.log('PrismEditor switchTheme called with:', theme)
     console.log('Current themeValue before:', this.themeValue)
     this.themeValue = theme
     console.log('Current themeValue after:', this.themeValue)
     this.loadTheme(theme)
-    // Add a small delay to ensure CSS is loaded before re-highlighting
     setTimeout(() => {
       this.highlightCode()
     }, 50)

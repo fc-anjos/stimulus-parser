@@ -1,4 +1,3 @@
-// Example: Controller B - references Controller C
 import { Controller } from "@hotwired/stimulus"
 
 export class ControllerB extends Controller {

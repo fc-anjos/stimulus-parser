@@ -197,7 +197,6 @@ describe("inheritance", () => {
     expect(parent.outlets.map(o => o.name)).toEqual(["parentOutlet1", "parentOutlet2"]) 
     expect(child.outlets.map(o => o.name)).toEqual(["childOutlet1", "childOutlet2", "parentOutlet1", "parentOutlet2"]) 
 
-    // Ensure these are plain definitions (no resolved controller data attached)
     const anyOutlet = child.outlets[0] as any
     expect("controller" in anyOutlet).toBeFalsy()
   })

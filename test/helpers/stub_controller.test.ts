@@ -10,33 +10,27 @@ describe("stubControllerDefinition", () => {
       actions: ["connect", "disconnect"],
       outlets: ["sidebar", "modal"],
       values: {
-        // Shorthand: { name: "String" }
         url: "String",
         count: "Number",
         enabled: "Boolean",
         
-        // Expanded: { name: { type: "String", default: '/path' } }
         apiUrl: { type: "String", default: "/api/v1" },
         maxRetries: { type: "Number", default: 3 },
         
-        // Inferred: { name: "Number" } (string literal)
         message: "Hello World",
         version: "1.0.0",
         
-        // Decorator: { name: { kind: "decorator", type: "String", default?: ValueDefinitionValue } }
         timeout: { kind: "decorator", type: "Number", default: 5000 },
         retryCount: { kind: "decorator", type: "Number" }
       }
     })
 
-    // Test basic properties
     expect(controller.guessedIdentifier).toBe("example")
     expect(controller.targetNames).toEqual(["input", "output"])
     expect(controller.classNames).toEqual(["loading", "loaded"])
     expect(controller.actionNames).toEqual(["connect", "disconnect"])
     expect(controller.outletNames).toEqual(["sidebar", "modal"])
 
-    // Test value names
     expect(controller.valueNames).toEqual([
       "url", "count", "enabled",
       "apiUrl", "maxRetries", 
@@ -44,10 +38,8 @@ describe("stubControllerDefinition", () => {
       "timeout", "retryCount"
     ])
 
-    // Test value definitions
     expect(controller.valueDefinitions).toHaveLength(9)
 
-    // Test specific value types
     const urlValue = controller.valueDefinitions.find(v => v.name === "url")!
     expect(urlValue.definition.kind).toBe("shorthand")
     expect(urlValue.definitionType).toBe("static")
@@ -78,10 +70,9 @@ describe("stubControllerDefinition", () => {
     expect(retryCountValue.definition.kind).toBe("decorator")
     expect(retryCountValue.definitionType).toBe("decorator")
     expect(retryCountValue.type).toBe("Number")
-    expect(retryCountValue.default).toBe(0) // Uses default for Number type
+    expect(retryCountValue.default).toBe(0)
     expect(retryCountValue.hasExplicitDefaultValue).toBe(false)
 
-    // Test inspect interface
     const inspect = controller.inspect
     expect(inspect.guessedIdentifier).toBe("example")
     expect(inspect.targets).toEqual(["input", "output"])

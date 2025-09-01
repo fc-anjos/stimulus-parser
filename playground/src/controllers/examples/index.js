@@ -1,4 +1,3 @@
-// Example: Controller registration file
 import { application } from "./application"
 import HelloController from "./hello_controller"
 import GoodbyeController from "./goodbye_controller"

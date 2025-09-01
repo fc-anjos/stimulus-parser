@@ -93,6 +93,7 @@ export class ControllerDefinition {
     return this.localTargets.map(target => target.name)
   }
 
+
   // Outlets
 
   get outlets(): OutletDefinition[] {
