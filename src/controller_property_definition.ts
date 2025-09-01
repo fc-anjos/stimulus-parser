@@ -23,10 +23,6 @@ export interface ControllerInterface {
   actions: string[]
 }
 
-
-
-
-
 export abstract class ControllerPropertyDefinition {
   public readonly name: string
   public readonly node: Node
@@ -148,5 +144,3 @@ export class MethodDefinition extends ControllerPropertyDefinition {}
 export class ClassDefinition extends ControllerPropertyDefinition {}
 export class TargetDefinition extends ControllerPropertyDefinition {}
 export class OutletDefinition extends ControllerPropertyDefinition {}
-
-

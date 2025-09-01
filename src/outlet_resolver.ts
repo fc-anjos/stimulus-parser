@@ -1,7 +1,6 @@
 import type { ControllerDefinition } from "./controller_definition"
 import type { OutletDefinition, ControllerInterface } from "./controller_property_definition"
 
-// Simplified outlet mapping with full controller data
 export type OutletMapping = OutletDefinition & {
   controller?: ControllerInterface & {
     outlets: OutletMapping[]
@@ -37,9 +36,7 @@ export class OutletMapper {
   ): Promise<OutletMapping[]> {
     const currentId = controllerDef.guessedIdentifier
 
-    // Base case: if revisiting this controller in the current path, return unresolved
     if (path.includes(currentId)) {
-      // Use outletNames for iteration but preserve full outlet objects
       return controllerDef.outletNames.map(name => {
         const outlet = controllerDef.outlets.find(o => o.name === name)!
         return { ...outlet, controller: undefined }
@@ -48,7 +45,6 @@ export class OutletMapper {
 
     const mappingPath = [...path, currentId]
 
-    // Use outletNames for iteration but pass full outlet objects
     return Promise.all(controllerDef.outletNames.map(name => {
       const outlet = controllerDef.outlets.find(o => o.name === name)!
       return this.mapOutlet(outlet, availableControllers, mappingPath)
